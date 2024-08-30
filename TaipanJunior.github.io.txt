@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Taipan Junior - Spiele und Videos</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background-color: #006400; /* Dunkles Grün als Hintergrundfarbe */
+            color: #ffffff; /* Weißer Text für besseren Kontrast */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        header {
+            background-color: #004d00; /* Sehr dunkles Grün */
+            padding: 20px;
+            text-align: center;
+            width: 100%;
+        }
+        header img {
+            max-width: 150px;
+            height: auto;
+        }
+        header h1 {
+            margin: 10px 0;
+            font-size: 2.5em;
+        }
+        main {
+            display: flex;
+            justify-content: space-around;
+            width: 100%;
+            padding: 20px;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+        .video-section, .game-section {
+            width: 45%;
+            text-align: center;
+        }
+        .game {
+            margin-top: 20px;
+        }
+        canvas {
+            background-color: #000;
+            display: block;
+            margin: 0 auto;
+        }
+        .controls {
+            margin-top: 20px;
+            text-align: center;
+        }
+        .controls button {
+            margin: 5px;
+            padding: 10px;
+            font-size: 16px;
+            border-radius: 5px;
+            border: none;
+            background-color: #00c853;
+            color: white;
+        }
+        footer {
+            background-color: #333;
+            color: white;
+            text-align: center;
+            padding: 10px;
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+        }
+        a {
+            color: #00c853; /* Leuchtendes Grün */
+            text-decoration: none;
+        }
+        a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <img src="data:image/jpeg;base64,...YOUR_LOGO_BASE64_HERE..." alt="Taipan Junior Logo"> <!-- Dein Logo hier -->
+        <h1>Willkommen bei Taipan Junior</h1>
+        <p>Die neuesten Videos von meinem YouTube-Kanal und coole Spiele!</p>
+    </header>
+    
+    <main>
+        <div class="video-section">
+            <h2>Letzte Videos</h2>
+            <iframe src="https://www.youtube.com/embed?listType=playlist&list=PL3n1o2zMwrk6uIRaAmpI3S-jyXl-6cvzO" frameborder="0" allowfullscreen></iframe>
+        </div>
+        
+        <div class="game-section">
+            <h2>Spiele</h2>
+
+            <!-- Retro Snake Game -->
+            <div class="game">
+                <h3>Retro Snake</h3>
+                <canvas id="snakeGame" width="400" height="400"></canvas>
+                <div class="controls">
+                    <button onclick="moveSnake('LEFT')">Links</button>
+                    <button onclick="moveSnake('UP')">Hoch</button>
+                    <button onclick="moveSnake('RIGHT')">Rechts</button>
+                    <button onclick="moveSnake('DOWN')">Runter</button>
+                </div>
+            </div>
+
+            <!-- Downhill Bike Game -->
+            <div class="game">
+                <h3>Downhill Bike</h3>
+                <canvas id="downhillGame" width="400" height="400"></canvas>
+                <div class="controls">
+                    <button onclick="moveBike(-1)">Links</button>
+                    <button onclick="moveBike(1)">Rechts</button>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <p>&copy; 2024 Taipan Junior. Alle Rechte vorbehalten.</p>
+    </footer>
+
+    <script>
+        // Retro Snake Game Code
+        const snakeCanvas = document.getElementById('snakeGame');
+        const snakeCtx = snakeCanvas.getContext('2d');
+        const box = 20;
+
+        const foodImg = new Image();
+        foodImg.src = 'data:image/png;base64,...BASE64_IMAGE_HERE...'; // Base64 for food image
+
+        let snake = [{x: 9 * box, y: 10 * box}];
+        let food = {x: Math.floor(Math.random() * 17 + 1) * box, y: Math.floor(Math.random() * 15 + 3) * box};
+        let score = 0;
+        let d;
+
+        function moveSnake(direction) {
+            if (direction === 'LEFT' && d !== 'RIGHT') d = 'LEFT';
+            else if (direction === 'UP' && d !== 'DOWN') d = 'UP';
+            else if (direction === 'RIGHT' && d !== 'LEFT') d = 'RIGHT';
+            else if (direction === 'DOWN' && d !== 'UP') d = 'DOWN';
+        }
+
+        function collision(head, array) {
+            for (let i = 0; i < array.length; i++) {
+                if (head.x === array[i].x && head.y === array[i].y) {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        function drawSnake() {
+            snakeCtx.fillStyle = '#000';
+            snakeCtx.fillRect(0, 0, snakeCanvas.width, snakeCanvas.height);
+
+            for (let i = 0; i < snake.length; i++) {
+                snakeCtx.fillStyle = (i === 0) ? 'green' : 'white';
+                snakeCtx.fillRect(snake[i].x, snake[i].y, box, box);
+
+                snakeCtx.strokeStyle = 'red';
+                snakeCtx.strokeRect(snake[i].x, snake[i].y, box, box);
+            }
+
+            snakeCtx.drawImage(foodImg, food.x, food.y, box, box);
+
+            let snakeX = snake[0].x;
+            let snakeY = snake[0].y;
+
+            if (d === 'LEFT') snakeX -= box;
+            if (d === 'UP') snakeY -= box;
+            if (d === 'RIGHT') snakeX += box;
+            if (d === 'DOWN') snakeY += box;
+
+            if (snakeX === food.x && snakeY === food.y) {
+                score++;
+                food = {
+                    x: Math.floor(Math.random() * 17 + 1) * box,
+                    y: Math.floor(Math.random() * 15 + 3) * box
+                };
+            } else {
+                snake.pop();
+            }
+
+            let newHead = {x: snakeX, y: snakeY};
+
+            if (snakeX < 0 || snakeX > 17 * box || snakeY < 3 * box || snakeY > 17 * box || collision(newHead, snake)) {
+                clearInterval(game);
+            }
+
+            snake.unshift(newHead);
+        }
+
+        let game = setInterval(drawSnake, 100);
+
+        // Downhill Bike Game Code
+        const bikeCanvas = document.getElementById('downhillGame');
+        const bikeCtx = bikeCanvas.getContext('2d');
+
+        const bikeImg = new Image();
+        bikeImg.src = 'data:image/png;base64,...BASE64_BIKE_HERE...'; // Base64 for bike image
+
+        let bikeX = bikeCanvas.width / 2;
+        let scoreBike = 0;
+        let gameSpeed = 3;
+        let obstacleHeight = 20;
+
+        function moveBike(direction) {
+            bikeX += direction * 30;
+            if (bikeX < 0) bikeX = 0;
+            if (bikeX > bikeCanvas.width - 30) bikeX = bikeCanvas.width - 30;
+        }
+
+        function drawBike() {
+            bikeCtx.clearRect(0, 0, bikeCanvas.width, bikeCanvas.height);
+            bikeCtx.drawImage(bikeImg, bikeX, bikeCanvas.height - 50, 30, 50);
+
+            scoreBike++;
+
+            if (scoreBike >= 1000) {
+                displayEasterEgg();
+            }
+        }
+
+        function displayEasterEgg() {
+            bikeCtx.fillStyle = '#00f';
+            bikeCtx.font = '20px Arial';
+            bikeCtx.fillText("Enyo bin Auch eine Maschine", bikeCanvas.width / 2 - 100, bikeCanvas.height / 2);
+        }
+
+        let bikeGame = setInterval(drawBike, 100);
+    </script>
+</body>
+</html>
